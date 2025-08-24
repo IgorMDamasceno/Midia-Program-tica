@@ -27,16 +27,22 @@
             <h1 class="text-3xl md:text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-teal-300 mb-2 text-center">Dashboard de Performance</h1>
             <p class="text-slate-400 text-center mb-8">Análise completa de cliques, receitas e perdas</p>
             
-            <div class="border-b border-slate-700 mb-8">
-                <nav class="-mb-px flex justify-center space-x-6" aria-label="Tabs">
-                    <button id="tab-dashboard" class="tab-button whitespace-nowrap py-4 px-1 border-b-2 font-medium text-lg border-blue-400 text-blue-400" onclick="switchTab('dashboard')">
-                        Dashboard Principal
-                    </button>
-                    <button id="tab-calculadora" class="tab-button whitespace-nowrap py-4 px-1 border-b-2 font-medium text-lg border-transparent text-slate-400 hover:text-slate-300 hover:border-slate-500" onclick="switchTab('calculadora')">
-                        Calculadora CPC Corrigido
-                    </button>
-                </nav>
+            <div class="bg-slate-900/70 p-1.5 rounded-xl flex items-center justify-center space-x-2 max-w-md mx-auto mb-10">
+                <button id="tab-dashboard" type="button" class="tab-button w-full flex items-center justify-center gap-x-2 py-2.5 px-4 rounded-lg text-sm font-semibold bg-blue-600 text-white shadow-md">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                        <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
+                        <path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.022 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd" />
+                    </svg>
+                    Dashboard Principal
+                </button>
+                <button id="tab-calculadora" type="button" class="tab-button w-full flex items-center justify-center gap-x-2 py-2.5 px-4 rounded-lg text-sm font-semibold text-slate-400 hover:bg-slate-700/50 hover:text-slate-200 transition-colors duration-300">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M6 2a2 2 0 00-2 2v12a2 2 0 002 2h8a2 2 0 002-2V4a2 2 0 00-2-2H6zm1 2a1 1 0 000 2h6a1 1 0 100-2H7zM7 9a1 1 0 011-1h4a1 1 0 110 2H8a1 1 0 01-1-1zm1 3a1 1 0 100 2h4a1 1 0 100-2H8z" clip-rule="evenodd" />
+                    </svg>
+                    Calculadora CPC
+                </button>
             </div>
+
 
             <div id="content-dashboard">
                 <div class="bg-slate-900/70 border border-slate-700 rounded-xl p-6 mb-8">
@@ -294,34 +300,37 @@
     </div>
 
     <script>
-        // --- Lógica de Navegação por Abas ---
+        // --- Lógica de Navegação por Abas (ATUALIZADA) ---
         function switchTab(tabId) {
             const contentDashboard = document.getElementById('content-dashboard');
             const contentCalculadora = document.getElementById('content-calculadora');
             const tabDashboard = document.getElementById('tab-dashboard');
             const tabCalculadora = document.getElementById('tab-calculadora');
 
-            const activeClasses = ['border-blue-400', 'text-blue-400'];
-            const inactiveClasses = ['border-transparent', 'text-slate-400', 'hover:text-slate-300', 'hover:border-slate-500'];
+            const activeClasses = ['bg-blue-600', 'text-white', 'shadow-md'];
+            const inactiveClasses = ['text-slate-400', 'hover:bg-slate-700/50', 'hover:text-slate-200'];
 
+            // Primeiro, remove o estado ativo de ambas as abas
+            tabDashboard.classList.remove(...activeClasses);
+            tabCalculadora.classList.remove(...activeClasses);
+            // E adiciona o estado inativo a ambas
+            tabDashboard.classList.add(...inactiveClasses);
+            tabCalculadora.classList.add(...inactiveClasses);
+            
             if (tabId === 'dashboard') {
                 contentDashboard.classList.remove('hidden');
                 contentCalculadora.classList.add('hidden');
                 
+                // Ativa a aba do Dashboard
                 tabDashboard.classList.add(...activeClasses);
                 tabDashboard.classList.remove(...inactiveClasses);
-                
-                tabCalculadora.classList.add(...inactiveClasses);
-                tabCalculadora.classList.remove(...activeClasses);
             } else {
                 contentDashboard.classList.add('hidden');
                 contentCalculadora.classList.remove('hidden');
 
+                // Ativa a aba da Calculadora
                 tabCalculadora.classList.add(...activeClasses);
                 tabCalculadora.classList.remove(...inactiveClasses);
-                
-                tabDashboard.classList.add(...inactiveClasses);
-                tabDashboard.classList.remove(...activeClasses);
             }
         }
 
@@ -446,7 +455,6 @@
             }
 
             const coberturaDecimal = cobertura / 100;
-            // Fórmula: Receita / (Cliques + (Solicitações * Cobertura) - Impressões)
             const denominador = cliques + (solicitacoes * coberturaDecimal) - impressoes;
             
             if (denominador <= 0) {
@@ -476,6 +484,10 @@
                 e.preventDefault();
                 calcularCPCCorrigido();
             });
+
+            // Adiciona listeners para os botões de abas
+            document.getElementById('tab-dashboard').addEventListener('click', () => switchTab('dashboard'));
+            document.getElementById('tab-calculadora').addEventListener('click', () => switchTab('calculadora'));
 
             // Garante que inputs numéricos não sejam negativos
             document.querySelectorAll('input[type="number"]').forEach(input => {
