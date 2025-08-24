@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard de Performance de Campanhas</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        /* Animação de entrada suave */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .fade-in {
+            animation: fadeIn 0.6s ease-out forwards;
+        }
+        /* Custom scrollbar para um look mais clean */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #1e293b; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #475569; }
+    </style>
+</head>
+<body class="bg-slate-900 text-slate-300 min-h-screen p-4 sm:p-6 lg:p-8">
+    <div class="max-w-7xl mx-auto">
+        <div class="fade-in bg-slate-800/50 backdrop-blur-sm border border-slate-700 rounded-2xl shadow-2xl shadow-blue-500/10 p-6 sm:p-8 mb-8">
+            <h1 class="text-3xl md:text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-teal-300 mb-2 text-center">Dashboard de Performance</h1>
+            <p class="text-slate-400 text-center mb-8">Análise completa de cliques, receitas e perdas</p>
+            
+            <div class="bg-slate-900/70 border border-slate-700 rounded-xl p-6 mb-8">
+                <h2 class="text-lg font-semibold text-slate-200 mb-4 text-center">Configuração Inicial</h2>
+                <div class="flex justify-center">
+                    <div class="w-full max-w-xs">
+                        <label class="block text-sm font-medium text-slate-400 mb-2 text-center">Quantidade de Quedas</label>
+                        <select id="quantidadeFontes" class="w-full px-4 py-3 bg-slate-700 border border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-center text-white transition-all duration-300" onchange="atualizarFontes()">
+                            <option value="1">1 Queda</option>
+                            <option value="2" selected>2 Quedas</option>
+                            <option value="3">3 Quedas</option>
+                            <option value="4">4 Quedas</option>
+                            <option value="5">5 Quedas</option>
+                            <option value="6">6 Quedas</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="grid grid-cols-1 xl:grid-cols-3 gap-8">
+                <div class="bg-slate-800/50 border border-slate-700 rounded-xl p-6 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:shadow-blue-500/10">
+                    <h2 class="text-xl font-semibold text-blue-400 mb-4 flex items-center">
+                        <span class="bg-blue-500/20 rounded-full w-10 h-10 flex items-center justify-center text-blue-300 mr-3">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.188 2.239l.777 2.897M5.136 7.965l-2.898-.777M13.95 4.05l-2.122 2.122m-5.657 5.656l-2.12 2.122" /></svg>
+                        </span>
+                        Cliques
+                    </h2>
+                    <div id="cliquesContainer" class="max-h-60 overflow-y-auto pr-2 space-y-4"></div>
+                    <div class="bg-slate-700/50 rounded-lg p-4 mt-6">
+                        <label class="block text-sm font-medium text-blue-300 mb-1">Total de Cliques</label>
+                        <div id="totalCliques" class="text-2xl font-bold text-white">0</div>
+                    </div>
+                </div>
+
+                <div class="bg-slate-800/50 border border-slate-700 rounded-xl p-6 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:shadow-green-500/10">
+                    <h2 class="text-xl font-semibold text-green-400 mb-4 flex items-center">
+                         <span class="bg-green-500/20 rounded-full w-10 h-10 flex items-center justify-center text-green-300 mr-3">
+                           <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+                        </span>
+                        Solicitações Interstitial
+                    </h2>
+                    <div id="solicitacoesContainer" class="max-h-60 overflow-y-auto pr-2 space-y-4"></div>
+                    <div class="bg-slate-700/50 rounded-lg p-4 mt-6">
+                        <label class="block text-sm font-medium text-green-300 mb-1">Total de Solicitações</label>
+                        <div id="totalSolicitacoes" class="text-2xl font-bold text-white">0</div>
+                    </div>
+                </div>
+
+                <div class="bg-slate-800/50 border border-slate-700 rounded-xl p-6 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:shadow-purple-500/10">
+                    <h2 class="text-xl font-semibold text-purple-400 mb-4 flex items-center">
+                        <span class="bg-purple-500/20 rounded-full w-10 h-10 flex items-center justify-center text-purple-300 mr-3">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v.01" /></svg>
+                        </span>
+                        Receita
+                    </h2>
+                    <div id="receitaContainer" class="max-h-60 overflow-y-auto pr-2 space-y-4"></div>
+                    <div class="bg-slate-700/50 rounded-lg p-4 mt-6">
+                        <label class="block text-sm font-medium text-purple-300 mb-1">Receita Total ($)</label>
+                        <div id="receitaTotal" class="text-2xl font-bold text-white">$0.00</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-8 bg-slate-800/50 border border-slate-700 rounded-xl p-6 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:shadow-orange-500/10">
+                <h2 class="text-xl font-semibold text-orange-400 mb-4 flex items-center">
+                    <span class="bg-orange-500/20 rounded-full w-10 h-10 flex items-center justify-center text-orange-300 mr-3">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" /></svg>
+                    </span>
+                    Dados de Compra
+                </h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <div>
+                        <label class="block text-sm font-medium text-slate-400 mb-2">Gasto (R$)</label>
+                        <input type="number" step="0.01" id="gasto" class="w-full px-4 py-3 bg-slate-700 border border-slate-600 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent text-white" placeholder="0.00" oninput="calcular()">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-slate-400 mb-2">CPA (R$)</label>
+                        <input type="number" step="0.01" id="cpaReal" class="w-full px-4 py-3 bg-slate-700 border border-slate-600 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent text-white" placeholder="0.00" oninput="calcular()">
+                    </div>
+                    <div class="bg-slate-700/50 rounded-lg p-4">
+                        <label class="block text-sm font-medium text-orange-300 mb-1">Leads</label>
+                        <div id="leads" class="text-xl font-bold text-white">0</div>
+                    </div>
+                    <div class="bg-slate-700/50 rounded-lg p-4">
+                        <label class="block text-sm font-medium text-orange-300 mb-1">CPA ($)</label>
+                        <div id="cpaDolar" class="text-xl font-bold text-white">$0.00</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="mt-8 bg-slate-800/50 border border-slate-700 rounded-xl p-6 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:shadow-red-500/10">
+                <h2 class="text-xl font-semibold text-red-400 mb-4 flex items-center">
+                    <span class="bg-red-500/20 rounded-full w-10 h-10 flex items-center justify-center text-red-300 mr-3">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
+                    </span>
+                    Métricas de Perda
+                </h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="bg-slate-700/50 rounded-lg p-4">
+                        <label class="block text-sm font-medium text-red-300 mb-1">Taxa de Interação</label>
+                        <div id="taxaInteracao" class="text-2xl font-bold text-white">0%</div>
+                        <p class="text-xs text-slate-500 mt-1">Cliques / Solicitações</p>
+                    </div>
+                    <div class="bg-slate-700/50 rounded-lg p-4">
+                        <label class="block text-sm font-medium text-red-300 mb-1">Taxa de Perda</label>
+                        <div id="taxaPerda" class="text-2xl font-bold text-white">0%</div>
+                        <p class="text-xs text-slate-500 mt-1">Solicitações / Leads (máx. 100%)</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-8 bg-slate-800/50 border border-slate-700 rounded-xl p-6 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:shadow-indigo-500/10">
+                <h2 class="text-xl font-semibold text-indigo-400 mb-6 flex items-center justify-center text-center">
+                    <span class="bg-indigo-500/20 rounded-full w-10 h-10 flex items-center justify-center text-indigo-300 mr-3">
+                       <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" /></svg>
+                    </span>
+                    Funil de Progressão do CPC Geral
+                </h2>
+                <div class="flex flex-col lg:flex-row items-center justify-center w-full gap-6 lg:gap-0">
+                    <div class="w-full lg:w-1/4 text-center">
+                        <div class="bg-slate-700/50 border border-slate-600 rounded-lg p-4 h-full">
+                            <p class="text-sm font-medium text-indigo-300 mb-1">Etapa 1: Base</p>
+                            <h3 class="text-lg font-semibold text-white mb-2">CPC Geral</h3>
+                            <div id="cpcGeral" class="text-3xl font-bold text-indigo-400">$0.0000</div>
+                        </div>
+                    </div>
+
+                    <div class="w-full lg:w-auto flex flex-col lg:flex-row items-center">
+                         <div class="w-px h-6 lg:w-16 lg:h-px bg-slate-600"></div>
+                         <div class="bg-indigo-500/20 border border-indigo-500/50 rounded-full p-3 mx-4 my-2 lg:my-0">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-indigo-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                              <path stroke-linecap="round" stroke-linejoin="round" d="M17 13l-5 5m0 0l-5-5m5 5V6" />
+                            </svg>
+                         </div>
+                         <div class="w-px h-6 lg:w-16 lg:h-px bg-slate-600"></div>
+                    </div>
+                    <div class="text-center lg:w-1/5 -mt-4 lg:-mt-0 lg:-ml-2 lg:mr-2">
+                        <p class="text-xs text-slate-400">Aplicando</p>
+                        <p class="text-sm font-bold text-white">Taxa de Interação</p>
+                        <div id="taxaInteracaoFunil" class="text-lg font-bold text-indigo-300">0%</div>
+                    </div>
+                    
+
+                    <div class="w-full lg:w-1/4 text-center">
+                         <div class="bg-slate-700/50 border border-slate-600 rounded-lg p-4 h-full">
+                            <p class="text-sm font-medium text-indigo-300 mb-1">Etapa 2: Ajustado</p>
+                            <h3 class="text-lg font-semibold text-white mb-2">CPC Pós-Interação</h3>
+                            <div id="cpcGeral1" class="text-3xl font-bold text-indigo-400">$0.0000</div>
+                        </div>
+                    </div>
+
+                     <div class="w-full lg:w-auto flex flex-col lg:flex-row items-center">
+                        <div class="w-px h-6 lg:w-16 lg:h-px bg-slate-600"></div>
+                        <div class="bg-indigo-500/20 border border-indigo-500/50 rounded-full p-3 mx-4 my-2 lg:my-0">
+                             <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-indigo-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                              <path stroke-linecap="round" stroke-linejoin="round" d="M17 13l-5 5m0 0l-5-5m5 5V6" />
+                            </svg>
+                        </div>
+                        <div class="w-px h-6 lg:w-16 lg:h-px bg-slate-600"></div>
+                    </div>
+                    <div class="text-center lg:w-1/5 -mt-4 lg:-mt-0 lg:-ml-2 lg:mr-2">
+                        <p class="text-xs text-slate-400">Aplicando</p>
+                        <p class="text-sm font-bold text-white">Taxa de Perda</p>
+                        <div id="taxaPerdaFunil" class="text-lg font-bold text-indigo-300">0%</div>
+                    </div>
+
+                    <div class="w-full lg:w-1/4 text-center">
+                         <div class="bg-gradient-to-br from-indigo-500/40 to-slate-700/50 border-2 border-indigo-400 rounded-lg p-4 h-full shadow-lg shadow-indigo-500/20">
+                            <p class="text-sm font-medium text-indigo-200 mb-1">Resultado Final</p>
+                            <h3 class="text-lg font-semibold text-white mb-2">CPC Final</h3>
+                            <div id="cpcGeral2" class="text-3xl font-extrabold text-white">$0.0000</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-8 bg-slate-800/50 border border-slate-700 rounded-xl p-6 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:shadow-teal-500/10">
+                <h2 class="text-xl font-semibold text-teal-400 mb-4 flex items-center">
+                    <span class="bg-teal-500/20 rounded-full w-10 h-10 flex items-center justify-center text-teal-300 mr-3">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+                    </span>
+                    Resumo de Performance
+                </h2>
+                <div class="bg-gradient-to-br from-slate-700 to-slate-800 rounded-xl p-6 text-center border border-teal-500/30 mb-6">
+                    <label class="block text-lg font-bold text-teal-300 mb-3">ROAS Geral</label>
+                    <div id="roasGeral" class="text-5xl font-extrabold text-white mb-3">0%</div>
+                    <p class="text-sm text-teal-400 mb-4">CPC Final / CPA ($)</p>
+                    <div class="grid grid-cols-2 gap-4 pt-4 border-t border-slate-600">
+                        <div>
+                            <p class="text-xs text-slate-400 mb-1">Taxa de Interação</p>
+                            <div id="resumoTaxaInteracao" class="text-lg font-semibold text-slate-100">0%</div>
+                        </div>
+                        <div>
+                            <p class="text-xs text-slate-400 mb-1">CPC Final</p>
+                            <div id="resumoCpcGeral" class="text-lg font-semibold text-slate-100">$0.0000</div>
+                        </div>
+                    </div>
+                </div>
+                 <div>
+                    <h3 class="text-lg font-semibold text-teal-300 mb-4 text-center">ROAS por Queda</h3>
+                    <div id="roasContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function atualizarFontes() {
+            const quantidade = parseInt(document.getElementById('quantidadeFontes').value);
+            
+            const inputClasses = "w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded-lg focus:ring-2 focus:border-transparent text-sm text-white placeholder-slate-500";
+
+            // Gerar seção de Cliques
+            let cliquesHTML = '';
+            for (let i = 1; i <= quantidade; i++) {
+                cliquesHTML += `
+                    <div class="bg-slate-900/50 p-3 rounded-lg">
+                        <h3 class="text-sm font-semibold text-blue-400 mb-3 border-b border-slate-700 pb-2">Queda ${i}</h3>
+                        <div class="space-y-3">
+                            <div>
+                                <label class="block text-xs font-medium text-slate-400 mb-1">Cliques P1</label>
+                                <input type="number" id="cliquesP1_fonte${i}" class="${inputClasses} focus:ring-blue-500" placeholder="0" oninput="calcular()">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-slate-400 mb-1">Cliques P2</label>
+                                <input type="number" id="cliquesP2_fonte${i}" class="${inputClasses} focus:ring-blue-500" placeholder="0" oninput="calcular()">
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+            document.getElementById('cliquesContainer').innerHTML = cliquesHTML;
+
+            // Gerar seção de Solicitações
+            let solicitacoesHTML = '';
+            for (let i = 1; i <= quantidade; i++) {
+                solicitacoesHTML += `
+                    <div class="bg-slate-900/50 p-3 rounded-lg">
+                        <h3 class="text-sm font-semibold text-green-400 mb-3 border-b border-slate-700 pb-2">Queda ${i}</h3>
+                        <div class="space-y-3">
+                            <div>
+                                <label class="block text-xs font-medium text-slate-400 mb-1">Solicitações Mobile</label>
+                                <input type="number" id="solicitacoesMobile_fonte${i}" class="${inputClasses} focus:ring-green-500" placeholder="0" oninput="calcular()">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-slate-400 mb-1">Solicitações Desktop</label>
+                                <input type="number" id="solicitacoesDesktop_fonte${i}" class="${inputClasses} focus:ring-green-500" placeholder="0" oninput="calcular()">
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+            document.getElementById('solicitacoesContainer').innerHTML = solicitacoesHTML;
+
+            // Gerar seção de Receita
+            let receitaHTML = '';
+            for (let i = 1; i <= quantidade; i++) {
+                receitaHTML += `
+                    <div class="bg-slate-900/50 p-3 rounded-lg">
+                        <h3 class="text-sm font-semibold text-purple-400 mb-3 border-b border-slate-700 pb-2">Queda ${i}</h3>
+                        <div class="space-y-3">
+                            <div>
+                                <label class="block text-xs font-medium text-slate-400 mb-1">Receita P1 ($)</label>
+                                <input type="number" step="0.01" id="receitaP1_fonte${i}" class="${inputClasses} focus:ring-purple-500" placeholder="0.00" oninput="calcular()">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-slate-400 mb-1">Receita P2 ($)</label>
+                                <input type="number" step="0.01" id="receitaP2_fonte${i}" class="${inputClasses} focus:ring-purple-500" placeholder="0.00" oninput="calcular()">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-slate-400 mb-1">RevShare (%)</label>
+                                <input type="number" step="0.01" id="revShare_fonte${i}" class="${inputClasses} focus:ring-purple-500" placeholder="0.00" oninput="calcular()">
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+            document.getElementById('receitaContainer').innerHTML = receitaHTML;
+
+            // Gerar seção de ROAS
+            let roasHTML = '';
+            for (let i = 1; i <= quantidade; i++) {
+                roasHTML += `
+                    <div class="bg-slate-700/50 rounded-lg p-4 text-center border border-slate-600">
+                        <label class="block text-sm font-bold text-teal-300 mb-2">ROAS Queda ${i}</label>
+                        <div id="roas_fonte${i}" class="text-2xl font-bold text-white mb-2">0%</div>
+                        <p class="text-xs text-teal-400 mb-3">CPC Queda / CPA ($)</p>
+                        
+                        <div class="grid grid-cols-2 gap-2 pt-3 border-t border-slate-600">
+                            <div>
+                                <p class="text-xs text-slate-400 mb-1">Taxa Interação</p>
+                                <div id="taxaInteracao_fonte${i}" class="text-sm font-semibold text-slate-100">0%</div>
+                            </div>
+                            <div>
+                                <p class="text-xs text-slate-400 mb-1">CPC Queda</p>
+                                <div id="cpcQueda_fonte${i}" class="text-sm font-semibold text-slate-100">$0.0000</div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+            document.getElementById('roasContainer').innerHTML = roasHTML;
+
+            calcular();
+        }
+
+        function calcular() {
+            const quantidade = parseInt(document.getElementById('quantidadeFontes').value);
+            
+            let totalCliques = 0;
+            let totalSolicitacoes = 0;
+            let receitaTotal = 0;
+
+            let cpcIndividuais = [];
+            let taxasInteracaoIndividuais = [];
+
+            for (let i = 1; i <= quantidade; i++) {
+                const cliquesP1 = parseFloat(document.getElementById(`cliquesP1_fonte${i}`)?.value) || 0;
+                const cliquesP2 = parseFloat(document.getElementById(`cliquesP2_fonte${i}`)?.value) || 0;
+                const cliquesQueda = cliquesP1 + cliquesP2;
+                totalCliques += cliquesQueda;
+
+                const solicitacoesMobile = parseFloat(document.getElementById(`solicitacoesMobile_fonte${i}`)?.value) || 0;
+                const solicitacoesDesktop = parseFloat(document.getElementById(`solicitacoesDesktop_fonte${i}`)?.value) || 0;
+                const solicitacoesQueda = solicitacoesMobile + solicitacoesDesktop;
+                totalSolicitacoes += solicitacoesQueda;
+
+                const receitaP1 = parseFloat(document.getElementById(`receitaP1_fonte${i}`)?.value) || 0;
+                const receitaP2 = parseFloat(document.getElementById(`receitaP2_fonte${i}`)?.value) || 0;
+                const revShare = parseFloat(document.getElementById(`revShare_fonte${i}`)?.value) || 0;
+                const receitaBrutaQueda = receitaP1 + receitaP2;
+                const receitaLiquidaQueda = receitaBrutaQueda * (1 - revShare / 100);
+                receitaTotal += receitaLiquidaQueda;
+
+                const taxaInteracaoQueda = solicitacoesQueda > 0 ? (cliquesQueda / solicitacoesQueda) : 0;
+                const cpcQueda = cliquesQueda > 0 ? (receitaLiquidaQueda / cliquesQueda) : 0;
+                const cpcQueda1 = cpcQueda * taxaInteracaoQueda;
+                
+                cpcIndividuais.push(cpcQueda1);
+                taxasInteracaoIndividuais.push(taxaInteracaoQueda);
+            }
+
+            const gasto = parseFloat(document.getElementById('gasto').value) || 0;
+            const cpaReal = parseFloat(document.getElementById('cpaReal').value) || 0;
+            const COTACAO_DOLAR = 5.50; // Você pode ajustar este valor
+
+            const leads = cpaReal > 0 ? gasto / cpaReal : 0;
+            const cpaDolar = cpaReal > 0 ? cpaReal / COTACAO_DOLAR : 0;
+
+            const taxaInteracao = totalSolicitacoes > 0 ? (totalCliques / totalSolicitacoes) : 0;
+            const taxaPerdaCalc = leads > 0 ? (totalSolicitacoes / leads) : 0;
+            const taxaPerda = Math.min(taxaPerdaCalc, 1);
+
+            const cpcGeral = totalCliques > 0 ? (receitaTotal / totalCliques) : 0;
+            const cpcGeral1 = cpcGeral * taxaInteracao;
+            const cpcGeral2 = cpcGeral1 * taxaPerda;
+
+            const roasGeral = cpaDolar > 0 ? (cpcGeral2 / cpaDolar) * 100 : 0;
+
+            document.getElementById('totalCliques').textContent = totalCliques.toLocaleString('pt-BR');
+            document.getElementById('totalSolicitacoes').textContent = totalSolicitacoes.toLocaleString('pt-BR');
+            document.getElementById('receitaTotal').textContent = `$${receitaTotal.toFixed(2)}`;
+            document.getElementById('leads').textContent = Math.round(leads).toLocaleString('pt-BR');
+            document.getElementById('cpaDolar').textContent = `$${cpaDolar.toFixed(2)}`;
+            document.getElementById('taxaInteracao').textContent = `${(taxaInteracao * 100).toFixed(2)}%`;
+            document.getElementById('taxaPerda').textContent = `${(taxaPerda * 100).toFixed(2)}%`;
+            document.getElementById('cpcGeral').textContent = `$${cpcGeral.toFixed(4)}`;
+            document.getElementById('cpcGeral1').textContent = `$${cpcGeral1.toFixed(4)}`;
+            document.getElementById('cpcGeral2').textContent = `$${cpcGeral2.toFixed(4)}`;
+            document.getElementById('roasGeral').textContent = `${roasGeral.toFixed(2)}%`;
+            
+            document.getElementById('taxaInteracaoFunil').textContent = `${(taxaInteracao * 100).toFixed(2)}%`;
+            document.getElementById('taxaPerdaFunil').textContent = `${(taxaPerda * 100).toFixed(2)}%`;
+            
+            document.getElementById('resumoTaxaInteracao').textContent = `${(taxaInteracao * 100).toFixed(2)}%`;
+            document.getElementById('resumoCpcGeral').textContent = `$${cpcGeral2.toFixed(4)}`;
+
+            for (let i = 1; i <= quantidade; i++) {
+                const roasIndividual = cpaDolar > 0 ? (cpcIndividuais[i-1] / cpaDolar) * 100 : 0;
+                const roasElement = document.getElementById(`roas_fonte${i}`);
+                const taxaInteracaoElement = document.getElementById(`taxaInteracao_fonte${i}`);
+                const cpcQuedaElement = document.getElementById(`cpcQueda_fonte${i}`);
+                
+                if (roasElement) roasElement.textContent = `${roasIndividual.toFixed(2)}%`;
+                if (taxaInteracaoElement) taxaInteracaoElement.textContent = `${(taxasInteracaoIndividuais[i-1] * 100).toFixed(2)}%`;
+                if (cpcQuedaElement) cpcQuedaElement.textContent = `$${cpcIndividuais[i-1].toFixed(4)}`;
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            atualizarFontes();
+        });
+    </script>
+</body>
+</html>
