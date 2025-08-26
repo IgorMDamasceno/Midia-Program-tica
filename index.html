@@ -400,7 +400,7 @@
 
             const gasto = parseFloat(document.getElementById('gasto').value) || 0;
             const cpaReal = parseFloat(document.getElementById('cpaReal').value) || 0;
-            const COTACAO_DOLAR = 5.45;
+            const COTACAO_DOLAR = 5.50;
 
             const leads = cpaReal > 0 ? gasto / cpaReal : 0;
             const cpaDolar = cpaReal > 0 ? cpaReal / COTACAO_DOLAR : 0;
@@ -501,5 +501,6 @@
     </script>
 </body>
 </html>
+
 
 
